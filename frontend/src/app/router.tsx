@@ -1,9 +1,9 @@
 import { createBrowserRouter, Navigate } from 'react-router'
-import AppLayout from '../components/AppLayout'
-import NotFoundPage from '../components/NotFoundPage'
-import LoginPage from '../features/auth/LoginPage'
-import RequireAuth from '../features/auth/RequireAuth'
-import TicketListPage from '../features/tickets/TicketListPage'
+import AppLayout from '@/components/AppLayout'
+import NotFoundPage from '@/components/NotFoundPage'
+import LoginPage from '@/features/auth/LoginPage'
+import RequireAuth from '@/features/auth/RequireAuth'
+import TicketListPage from '@/features/tickets/TicketListPage'
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },

@@ -1,9 +1,9 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi } from 'vitest'
-import { renderWithProviders } from '../../test/renderWithProviders'
-import { AuthContext, type AuthContextValue } from './AuthProvider'
-import LoginPage from './LoginPage'
+import { renderWithProviders } from '@/test/renderWithProviders'
+import { AuthContext, type AuthContextValue } from '@/features/auth/AuthProvider'
+import LoginPage from '@/features/auth/LoginPage'
 
 function renderLogin(login: AuthContextValue['login']) {
   const value: AuthContextValue = { user: null, isLoading: false, login, logout: vi.fn() }

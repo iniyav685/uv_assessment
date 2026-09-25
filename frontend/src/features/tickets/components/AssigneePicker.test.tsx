@@ -1,12 +1,12 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi } from 'vitest'
-import { api } from '../../../api/client'
-import { lookups, makeDetail } from '../../../test/fixtures'
-import { renderWithProviders } from '../../../test/renderWithProviders'
-import AssigneePicker from './AssigneePicker'
+import { api } from '@/services/api'
+import { lookups, makeDetail } from '@/test/fixtures'
+import { renderWithProviders } from '@/test/renderWithProviders'
+import AssigneePicker from '@/features/tickets/components/AssigneePicker'
 
-vi.mock('../../../api/client', () => ({ api: { get: vi.fn(), post: vi.fn() } }))
+vi.mock('@/services/api', () => ({ api: { get: vi.fn(), post: vi.fn() } }))
 const get = vi.mocked(api.get)
 const post = vi.mocked(api.post)
 

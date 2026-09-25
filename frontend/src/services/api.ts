@@ -1,5 +1,5 @@
-import { ApiError, toApiError } from './errors'
-import { tokenStorage } from './tokenStorage'
+import { ApiError, toApiError } from '@/api/errors'
+import { tokenStorage } from '@/api/tokenStorage'
 
 /**
  * Minimal fetch-based API client. React Query owns caching, retries and request

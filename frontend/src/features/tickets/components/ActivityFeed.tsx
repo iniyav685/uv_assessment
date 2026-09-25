@@ -1,10 +1,10 @@
 import { Avatar, Box, Chip, Paper, Stack, Tab, Tabs, Typography } from '@mui/material'
 import { memo, useMemo, useState } from 'react'
-import type { Activity, ActivityKind } from '../../../api/types'
-import AttachmentList from '../../../components/AttachmentList'
-import RichTextContent from '../../../components/RichTextContent'
-import UserAvatar from '../../../components/UserAvatar'
-import { formatDateTime } from '../../../utils/format'
+import type { Activity, ActivityKind } from '@/api/types'
+import AttachmentList from '@/molecules/AttachmentList'
+import RichTextContent from '@/components/RichTextContent'
+import UserAvatar from '@/atoms/UserAvatar'
+import { formatDateTime } from '@/utils/format'
 
 type Filter = 'all' | 'actions' | 'comments'
 

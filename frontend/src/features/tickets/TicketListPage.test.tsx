@@ -1,13 +1,13 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi } from 'vitest'
-import { api } from '../../api/client'
-import { lookups, makeMe, makeTicket } from '../../test/fixtures'
-import { renderWithProviders } from '../../test/renderWithProviders'
-import { AuthContext } from '../auth/AuthProvider'
-import TicketListPage from './TicketListPage'
+import { api } from '@/services/api'
+import { lookups, makeMe, makeTicket } from '@/test/fixtures'
+import { renderWithProviders } from '@/test/renderWithProviders'
+import { AuthContext } from '@/features/auth/AuthProvider'
+import TicketListPage from '@/features/tickets/TicketListPage'
 
-vi.mock('../../api/client', () => ({ api: { get: vi.fn(), post: vi.fn() } }))
+vi.mock('@/services/api', () => ({ api: { get: vi.fn(), post: vi.fn() } }))
 const get = vi.mocked(api.get)
 
 function mockApi(results = [makeTicket()], total = results.length) {

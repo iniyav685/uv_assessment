@@ -11,11 +11,11 @@ import {
   Tooltip,
 } from '@mui/material'
 import { useRef, useState, type FormEvent } from 'react'
-import RichTextEditor, { type RichTextEditorHandle } from '../../../components/RichTextEditor'
-import { formatBytes } from '../../../utils/format'
-import { describeActionError, NO_ERROR, type ActionErrorState } from '../actionErrors'
-import { useTicketAction } from '../api'
-import { ALLOWED_TYPES, useAttachmentUploads } from '../useAttachmentUploads'
+import RichTextEditor, { type RichTextEditorHandle } from '@/atoms/RichTextEditor'
+import { formatBytes } from '@/utils/format'
+import { describeActionError, NO_ERROR, type ActionErrorState } from '@/features/tickets/actionErrors'
+import { useTicketAction } from '@/features/tickets/api'
+import { ALLOWED_TYPES, useAttachmentUploads } from '@/features/tickets/useAttachmentUploads'
 
 /** Rich-text comment composer with media attachments, shown under the activity feed in the ticket modal's left column. */
 export default function CommentComposer({ ticketId }: { ticketId: number }) {

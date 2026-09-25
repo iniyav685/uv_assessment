@@ -1,13 +1,13 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi } from 'vitest'
-import { api } from '../../../api/client'
-import { uploadToStorage } from '../../../api/uploadToStorage'
-import { makeDetail } from '../../../test/fixtures'
-import { renderWithProviders } from '../../../test/renderWithProviders'
-import CommentComposer from './CommentComposer'
+import { api } from '@/services/api'
+import { uploadToStorage } from '@/api/uploadToStorage'
+import { makeDetail } from '@/test/fixtures'
+import { renderWithProviders } from '@/test/renderWithProviders'
+import CommentComposer from '@/features/tickets/components/CommentComposer'
 
-vi.mock('../../../api/client', () => ({ api: { get: vi.fn(), post: vi.fn() } }))
+vi.mock('@/services/api', () => ({ api: { get: vi.fn(), post: vi.fn() } }))
 vi.mock('../../../api/uploadToStorage', () => ({ uploadToStorage: vi.fn() }))
 
 const apiPost = vi.mocked(api.post)

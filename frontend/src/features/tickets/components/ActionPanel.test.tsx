@@ -1,13 +1,13 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi } from 'vitest'
-import { api } from '../../../api/client'
-import { ApiError } from '../../../api/errors'
-import { lookups, makeDetail } from '../../../test/fixtures'
-import { renderWithProviders } from '../../../test/renderWithProviders'
-import ActionPanel from './ActionPanel'
+import { api } from '@/services/api'
+import { ApiError } from '@/api/errors'
+import { lookups, makeDetail } from '@/test/fixtures'
+import { renderWithProviders } from '@/test/renderWithProviders'
+import ActionPanel from '@/features/tickets/components/ActionPanel'
 
-vi.mock('../../../api/client', () => ({ api: { get: vi.fn(), post: vi.fn() } }))
+vi.mock('@/services/api', () => ({ api: { get: vi.fn(), post: vi.fn() } }))
 const post = vi.mocked(api.post)
 
 function renderPanel(ticket = makeDetail()) {

@@ -1,8 +1,8 @@
 import { Button, Card, CardContent } from '@mui/material'
 import { memo } from 'react'
 import { Link, useLocation } from 'react-router'
-import type { TicketListItem } from '../../../api/types'
-import TicketSummary from './TicketSummary'
+import type { TicketListItem } from '@/api/types'
+import TicketSummary from '@/features/tickets/components/TicketSummary'
 
 function TicketCard({ ticket }: { ticket: TicketListItem }) {
   const { search } = useLocation()

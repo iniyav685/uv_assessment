@@ -1,11 +1,11 @@
 import EditOutlined from '@mui/icons-material/EditOutlined'
 import { Alert, Box, Button, IconButton, Paper, Stack, Tooltip, Typography } from '@mui/material'
 import { useState } from 'react'
-import type { TicketDetail } from '../../../api/types'
-import RichTextContent from '../../../components/RichTextContent'
-import RichTextEditor from '../../../components/RichTextEditor'
-import { describeActionError, NO_ERROR, type ActionErrorState } from '../actionErrors'
-import { useTicketAction } from '../api'
+import type { TicketDetail } from '@/api/types'
+import RichTextContent from '@/components/RichTextContent'
+import RichTextEditor from '@/atoms/RichTextEditor'
+import { describeActionError, NO_ERROR, type ActionErrorState } from '@/features/tickets/actionErrors'
+import { useTicketAction } from '@/features/tickets/api'
 
 /** Issue description, editable in place — click it (or the pencil) to switch to a rich text editor. */
 export default function IssueDescriptionCard({ ticket }: { ticket: TicketDetail }) {

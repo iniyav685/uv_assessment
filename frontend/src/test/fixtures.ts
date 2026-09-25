@@ -1,4 +1,4 @@
-import type { Lookups, Me, TicketDetail, TicketListItem, UserSummary } from '../api/types'
+import type { Lookups, Me, TicketDetail, TicketListItem, UserSummary } from '@/api/types'
 
 export const poc: UserSummary = {
   id: 4,

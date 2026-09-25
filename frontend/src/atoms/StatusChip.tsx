@@ -2,7 +2,7 @@ import CheckCircleOutline from '@mui/icons-material/CheckCircleOutlined'
 import ErrorOutline from '@mui/icons-material/ErrorOutlineOutlined'
 import Schedule from '@mui/icons-material/Schedule'
 import { Chip, type ChipProps } from '@mui/material'
-import type { TicketStatus } from '../../../api/types'
+import type { TicketStatus } from '@/api/types'
 
 const COLOR: Record<TicketStatus, ChipProps['color']> = {
   pending_facility_manager_review: 'secondary',

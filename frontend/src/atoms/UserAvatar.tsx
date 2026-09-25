@@ -1,6 +1,6 @@
 import PersonOutlined from '@mui/icons-material/PersonOutlined'
 import { Avatar } from '@mui/material'
-import type { UserSummary } from '../api/types'
+import type { UserSummary } from '@/api/types'
 
 const SIZES = { small: 24, medium: 32 }
 

@@ -1,7 +1,7 @@
 import { AppBar, Box, Button, Chip, Container, Toolbar, Typography } from '@mui/material'
 import { Link, Outlet } from 'react-router'
-import { useAuth } from '../features/auth/useAuth'
-import NotificationsBell from '../features/notifications/NotificationsBell'
+import { useAuth } from '@/features/auth/useAuth'
+import NotificationsBell from '@/features/notifications/NotificationsBell'
 
 export default function AppLayout() {
   const { user, logout } = useAuth()

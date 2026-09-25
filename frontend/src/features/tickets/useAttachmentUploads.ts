@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { api } from '../../api/client'
-import { toApiError } from '../../api/errors'
-import { uploadToStorage } from '../../api/uploadToStorage'
+import { toApiError } from '@/api/errors'
+import { uploadToStorage } from '@/api/uploadToStorage'
+import { attachmentService } from '@/services/attachment.service'
 
 // Mirrors the server allow-list (settings.ATTACHMENT_ALLOWED_TYPES).
 export const ALLOWED_TYPES = [
@@ -19,11 +19,6 @@ export interface PendingUpload {
   status: 'uploading' | 'done' | 'error'
   attachmentId?: string
   error?: string
-}
-
-interface PresignResponse {
-  id: string
-  upload: { url: string; fields: Record<string, string> }
 }
 
 /**
@@ -44,10 +39,10 @@ export function useAttachmentUploads(ticketId: number) {
       const controller = new AbortController()
       controllers.current.set(item.localId, controller)
       try {
-        const data = await api.post<PresignResponse>(
-          `/tickets/${ticketId}/attachments/`,
+        const data = await attachmentService.presignUpload(
+          ticketId,
           { filename: item.file.name, content_type: item.file.type, size: item.file.size },
-          { signal: controller.signal },
+          controller.signal,
         )
         const form = new FormData()
         Object.entries(data.upload.fields).forEach(([k, v]) => form.append(k, v))

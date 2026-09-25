@@ -1,7 +1,7 @@
 import { Autocomplete, Box, Button, Stack, TextField, Typography } from '@mui/material'
 import { useState } from 'react'
-import type { Lookups, TicketStatus } from '../../../api/types'
-import type { FilterKey, TicketListParams } from '../useTicketListParams'
+import type { Lookups, TicketStatus } from '@/api/types'
+import type { FilterKey, TicketListParams } from '@/features/tickets/useTicketListParams'
 
 export type FilterValues = Pick<TicketListParams, FilterKey>
 
