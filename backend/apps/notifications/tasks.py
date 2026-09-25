@@ -78,12 +78,29 @@ def build_message(activity: TicketActivity, recipient_id: int) -> str:
     return text[:255]
 
 
+# Activities that hand the ticket to a specific person, keyed by the live ticket
+# field that names them. That field can be overwritten by a *later* activity (a
+# second reassignment) before this activity's own notification task runs — the
+# task queue gives no ordering guarantee once it has any backlog — so for these
+# kinds we read who it actually was from the activity's own `meta["assignee_id"]`
+# snapshot instead of the ticket's current value.
+_ASSIGNEE_OVERRIDES = {
+    ActivityKind.ASSIGNED_TECHNICIAN: "technician_id",
+    ActivityKind.FORWARDED_TO_DEPARTMENT: "department_poc_id",
+    ActivityKind.CHANGED_DEPARTMENT: "department_poc_id",
+}
+
+
 def recipients_for(activity: TicketActivity) -> set[int]:
     """Stakeholders of the ticket after the change, minus whoever made it."""
     if activity.kind == ActivityKind.CREATED:
         return set()  # the paired "auto-assigned" event already notifies everyone
     ticket = activity.ticket
-    ids = {ticket.created_by_id, ticket.department_poc_id, ticket.technician_id}
+    fields = {"department_poc_id": ticket.department_poc_id, "technician_id": ticket.technician_id}
+    overridden_field = _ASSIGNEE_OVERRIDES.get(activity.kind)
+    if overridden_field:
+        fields[overridden_field] = activity.meta.get("assignee_id")
+    ids = {ticket.created_by_id, *fields.values()}
     # The Facility Manager monitors their location: new tickets and closures only.
     if activity.kind in (ActivityKind.AUTO_ASSIGNED, ActivityKind.RESOLVED, ActivityKind.CLOSED):
         ids.add(ticket.facility_manager_id)
