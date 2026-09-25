@@ -137,7 +137,10 @@ def notify_activity(self, activity_id: int) -> dict:
         created += was_created
 
     emailed = 0
-    for notification in Notification.objects.filter(activity=activity, emailed_at__isnull=True):
+    pending = Notification.objects.filter(
+        activity=activity, emailed_at__isnull=True
+    ).select_related("recipient", "ticket")
+    for notification in pending:
         send_email(notification)  # may raise TransientDeliveryError -> autoretry
         emailed += Notification.objects.filter(pk=notification.pk, emailed_at__isnull=True).update(
             emailed_at=timezone.now()

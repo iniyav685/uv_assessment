@@ -199,8 +199,18 @@ ATTACHMENT_DOWNLOAD_URL_TTL = 60 * 60
 ATTACHMENT_ORPHAN_HOURS = 24
 
 # Probability (0-1) that the simulated e-mail send raises a transient error,
-# to demonstrate Celery retries locally.
+# to demonstrate Celery retries locally. Only applies to EMAIL_PROVIDER=console.
 NOTIFICATION_SIMULATED_FAILURE_RATE = env("NOTIFICATION_SIMULATED_FAILURE_RATE")
+
+# --- E-mail delivery (SES in production, console log locally) --------------
+# "console" logs identifiers only (no addresses/content) and never actually sends -
+# safe for local dev and CI. "ses" sends real e-mail via Amazon SES using boto3;
+# on AWS leave AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY unset so boto3 uses the task's
+# IAM role (needs ses:SendEmail), same as the S3 client above.
+EMAIL_PROVIDER = env("EMAIL_PROVIDER", default="console")
+AWS_SES_REGION_NAME = env("AWS_SES_REGION_NAME", default=AWS_S3_REGION_NAME)
+# Must be a verified SES identity (or domain) in the target AWS account/region.
+EMAIL_FROM_ADDRESS = env("EMAIL_FROM_ADDRESS", default="helpdesk@example.com")
 
 # Exposes seeded demo accounts on the login page. Never enable in production.
 DEMO_MODE = env("DEMO_MODE")

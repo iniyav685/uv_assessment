@@ -333,7 +333,14 @@ The brief asks for two of these; all four are implemented:
 fans out notifications to the ticket's stakeholders (creator, current POC and technician,
 excluding the person who acted; the client POC of the ticket's office is added in when a
 technician marks a ticket fully resolved, so they're asked to verify). It creates in-app
-`Notification` rows and sends a simulated e-mail. Redis is the broker and result backend.
+`Notification` rows and sends an e-mail through `apps/notifications/delivery.py`. The provider is
+selected by `EMAIL_PROVIDER`: `console` (default, local/dev/CI) logs identifiers only and never
+actually sends; `ses` sends real e-mail via **Amazon SES** using boto3, with the same credential
+pattern as the S3 client (unset keys ⇒ the task's IAM role, which needs `ses:SendEmail`). SES
+throttling/service errors raise `TransientDeliveryError` into the same autoretry path as any other
+transient failure; a permanent rejection (e.g. an unverified sender in the SES sandbox) is logged
+and swallowed rather than retried, since retrying wouldn't help. Redis is the broker and result
+backend.
 
 **Its own queue and worker.** `notify_activity` is routed to a dedicated `notifications`
 Celery queue, consumed only by the `worker-notifications` service (`docker-compose.yml`);
@@ -405,7 +412,9 @@ Where the wireframe didn't specify a rule, I assumed the following:
 - **Tokens** are kept in `localStorage` for simplicity. In production I would use an httpOnly,
   SameSite refresh-token cookie with the access token held in memory.
 - **Notifications** use 30-second polling. With more time I'd push them over WebSockets
-  (Django Channels) or SSE, and send real e-mail through SES.
+  (Django Channels) or SSE. Real e-mail delivery is already wired up (`EMAIL_PROVIDER=ses`,
+  see [Celery and Redis design](#celery-and-redis-design)); moving off SES sandbox mode (verified
+  recipients only) to production access is an operational step, not a code change.
 - **Search** uses `icontains`. At scale I'd switch to PostgreSQL full-text search (a
   `SearchVector` with a GIN index) or `pg_trgm`.
 - **Lookups** return all reference data in one call. With thousands of clients this should
