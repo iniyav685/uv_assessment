@@ -1,0 +1,17 @@
+# AWS deployment note
+
+A live deployment isn't required for this assignment. This is how I would run the app on AWS.
+
+| Concern | Choice |
+|---|---|
+| **Compute** | **ECS Fargate** services built from the same backend image: `web` (gunicorn behind an **ALB**), `worker` (`celery -A config worker -Q default`) for the hourly cleanup, `worker-notifications` (`celery -A config worker -Q notifications`) for notification delivery — split out so it scales and fails independently of other tasks — and a single-task `beat` service (desired count 1) that only publishes, never processes. |
+| **Database** | **RDS PostgreSQL**, Multi-AZ, automated backups plus point-in-time recovery, in private subnets. Migrations run as a one-off ECS task in the deploy pipeline before the new web tasks start. |
+| **Broker and cache** | **ElastiCache for Redis** (Multi-AZ with automatic failover), private subnets, TLS in transit. |
+| **Frontend** | `npm run build` → **S3** (private) served through **CloudFront** with OAC. `/api/*` goes to the ALB as a second CloudFront origin, so the app is same-origin in production too. |
+| **Static and media** | Django admin static files collected to S3 (served by CloudFront). Ticket attachments live in a separate **private** S3 bucket (Block Public Access on, SSE-S3/KMS encryption, CORS allowing only the app origin for POST/GET). Browsers upload via presigned POST and read via presigned GET; a lifecycle rule expires any orphaned `tickets/` objects as a backstop to the cleanup task. The ECS task role gets only `s3:PutObject/GetObject/DeleteObject` on that bucket. Locally, SeaweedFS stands in for S3 with identical code. |
+| **Config and secrets** | Non-secret settings as ECS task environment variables. `DJANGO_SECRET_KEY`, the database credentials and the Redis auth token live in **Secrets Manager** (with rotation) and are injected by ECS. Task IAM roles are least-privilege, and nothing is baked into images. `DEMO_MODE=False` and `DJANGO_DEBUG=False`. |
+| **Network and security** | VPC with public subnets (ALB only) and private subnets (tasks, RDS, Redis). Security groups allow ALB→web, web/worker→RDS/Redis, and nothing else. ACM certificates, WAF on CloudFront. |
+| **Scaling** | Web scales on CPU and ALB request count. The worker scales on **queue depth** (a custom CloudWatch metric from Redis list length) and runs multiple tasks safely because the task is idempotent. RDS can add read replicas for list-heavy traffic. |
+| **Monitoring** | Container logs go to **CloudWatch Logs** (the key=value format makes Logs Insights queries easy). Alarms on ALB 5xx and latency, RDS CPU/connections/storage, Redis memory, queue depth and task failures. The `/api/health/` endpoint backs the ALB health check. Sentry or X-Ray for traces and errors. |
+| **Failure recovery** | ECS replaces unhealthy tasks. Rolling deploys with the circuit breaker roll back automatically. RDS and Redis fail over across availability zones. Late acks redeliver tasks from crashed workers, and failed e-mails remain as `emailed_at IS NULL` for re-driving. RDS PITR covers data mistakes. Infrastructure is defined in Terraform/CDK so an environment can be rebuilt. |
+| **CI/CD** | GitHub Actions runs lint and tests, builds and pushes to **ECR**, runs the migration task, then updates the ECS services, and syncs the SPA to S3 and invalidates CloudFront. |

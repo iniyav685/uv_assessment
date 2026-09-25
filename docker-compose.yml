@@ -1,0 +1,120 @@
+name: helpdesk
+
+x-backend-env: &backend-env
+  DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+  REDIS_URL: redis://redis:6379/0
+  # Local S3 emulator. The backend talks to it on the Docker network; presigned
+  # URLs are signed for the host the browser uses.
+  AWS_S3_ENDPOINT_URL: http://s3:8333
+  AWS_S3_PUBLIC_ENDPOINT_URL: http://localhost:8333
+  AWS_ACCESS_KEY_ID: ${S3_ACCESS_KEY}
+  AWS_SECRET_ACCESS_KEY: ${S3_SECRET_KEY}
+
+x-backend: &backend
+  build:
+    context: ./backend
+  env_file: .env
+  environment: *backend-env
+  volumes:
+    - ./backend:/app
+  depends_on:
+    db:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+    s3:
+      condition: service_healthy
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Local S3: SeaweedFS (S3-compatible, private bucket, presigned URLs).
+  s3:
+    image: chrislusf/seaweedfs:latest
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        cat > /tmp/s3.json <<JSON
+        {"identities":[{"name":"helpdesk","credentials":[{"accessKey":"$${S3_ACCESS_KEY}","secretKey":"$${S3_SECRET_KEY}"}],"actions":["Admin","Read","Write","List","Tagging"]}]}
+        JSON
+        exec weed server -dir=/data -s3 -s3.port=8333 -s3.config=/tmp/s3.json -master.volumeSizeLimitMB=256 -volume.max=0
+    environment:
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY}
+      S3_SECRET_KEY: ${S3_SECRET_KEY}
+    volumes:
+      - s3data:/data
+    ports:
+      - "8333:8333"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8333/status || wget -q -S -O /dev/null http://127.0.0.1:8333/ 2>&1 | grep -q HTTP"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    <<: *backend
+    environment:
+      <<: *backend-env
+      RUN_MIGRATIONS: "1"
+      SEED_DATA: ${SEED_DATA:-1}
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health/')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # Default queue: everything except notification delivery (e.g. the hourly cleanup task).
+  worker:
+    <<: *backend
+    command: celery -A config worker --loglevel=INFO --concurrency=2 -Q default
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  # Notification delivery runs as its own service on its own queue, so a mail-provider
+  # slowdown or a burst of retries never delays other tasks (and vice versa). Same
+  # codebase, database and broker as `worker` — just routed and scaled independently.
+  worker-notifications:
+    <<: *backend
+    command: celery -A config worker --loglevel=INFO --concurrency=2 -Q notifications
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  # Periodic jobs (orphaned-upload cleanup). Exactly one beat instance must run.
+  beat:
+    <<: *backend
+    command: celery -A config beat --loglevel=INFO --schedule=/tmp/celerybeat-schedule
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  s3data:
