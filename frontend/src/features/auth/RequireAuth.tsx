@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { Navigate, useLocation } from 'react-router'
-import LoadingState from '../../components/LoadingState'
-import { useAuth } from './useAuth'
+import LoadingState from '@/atoms/LoadingState'
+import { useAuth } from '@/features/auth/useAuth'
 
 export default function RequireAuth({ children }: { children: ReactNode }) {
   const { user, isLoading } = useAuth()

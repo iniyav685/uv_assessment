@@ -17,11 +17,11 @@ import {
   useTheme,
 } from '@mui/material'
 import { useMemo, useState, type FormEvent } from 'react'
-import { toApiError } from '../../../api/errors'
-import type { IssueTypeOption, Lookups, OfficeOption, TicketDetail } from '../../../api/types'
-import RichTextEditor from '../../../components/RichTextEditor'
-import { useAuth } from '../../auth/useAuth'
-import { useCreateTicket } from '../api'
+import { toApiError } from '@/api/errors'
+import type { IssueTypeOption, Lookups, OfficeOption, TicketDetail } from '@/api/types'
+import RichTextEditor from '@/atoms/RichTextEditor'
+import { useAuth } from '@/features/auth/useAuth'
+import { useCreateTicket } from '@/features/tickets/api'
 
 const MAX_ISSUES = 5
 

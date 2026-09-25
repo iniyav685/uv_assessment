@@ -1,4 +1,4 @@
-import { ApiError } from './errors'
+import { ApiError } from '@/api/errors'
 
 /**
  * POSTs a multipart form straight to object storage (a presigned S3 POST).

@@ -1,9 +1,9 @@
 import { Alert, Box, Button, CircularProgress, Paper, Stack, TextField, Typography } from '@mui/material'
 import { useState, type FormEvent } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router'
-import { toApiError } from '../../api/errors'
-import DemoAccounts from './DemoAccounts'
-import { useAuth } from './useAuth'
+import { toApiError } from '@/api/errors'
+import DemoAccounts from '@/features/auth/DemoAccounts'
+import { useAuth } from '@/features/auth/useAuth'
 
 type Errors = Partial<Record<'username' | 'password', string>>
 

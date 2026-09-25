@@ -2,9 +2,9 @@ import CalendarToday from '@mui/icons-material/CalendarTodayOutlined'
 import PersonOutline from '@mui/icons-material/PersonOutlined'
 import { Box, Chip, Stack, Typography } from '@mui/material'
 import type { ReactNode } from 'react'
-import type { TicketListItem } from '../../../api/types'
-import { formatDateTime } from '../../../utils/format'
-import StatusChip from './StatusChip'
+import type { TicketListItem } from '@/api/types'
+import { formatDateTime } from '@/utils/format'
+import StatusChip from '@/atoms/StatusChip'
 
 interface Props {
   ticket: TicketListItem

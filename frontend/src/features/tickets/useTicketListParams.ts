@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router'
-import type { TicketStatus } from '../../api/types'
+import type { TicketStatus } from '@/api/types'
 
 export type Tab = 'open' | 'closed'
 export type Ordering = '-created_at' | 'created_at'

@@ -1,5 +1,5 @@
 import { Alert, AlertTitle, Button } from '@mui/material'
-import { toApiError } from '../api/errors'
+import { toApiError } from '@/api/errors'
 
 interface Props {
   error: unknown

@@ -1,9 +1,9 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { createContext, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { AUTH_LOGOUT_EVENT } from '../../api/client'
-import { tokenStorage } from '../../api/tokenStorage'
-import type { Me as User } from '../../api/types'
-import { authApi, type LoginPayload } from './api'
+import { AUTH_LOGOUT_EVENT } from '@/services/api'
+import { tokenStorage } from '@/api/tokenStorage'
+import type { Me as User } from '@/api/types'
+import { authService, type LoginPayload } from '@/services/auth.service'
 
 export interface AuthContextValue {
   user: User | null
@@ -22,7 +22,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const meQuery = useQuery({
     queryKey: ME_QUERY_KEY,
-    queryFn: authApi.me,
+    queryFn: authService.getMe,
     enabled: hasToken,
     staleTime: Infinity,
   })
@@ -40,9 +40,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(
     async (payload: LoginPayload) => {
-      const tokens = await authApi.login(payload)
+      const tokens = await authService.login(payload)
       tokenStorage.set(tokens.access, tokens.refresh)
-      const me = await authApi.me()
+      const me = await authService.getMe()
       queryClient.setQueryData(ME_QUERY_KEY, me)
       setHasToken(true)
     },

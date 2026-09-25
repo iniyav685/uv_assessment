@@ -1,6 +1,6 @@
 import { Button, Container } from '@mui/material'
 import { Link } from 'react-router'
-import EmptyState from './EmptyState'
+import EmptyState from '@/molecules/EmptyState'
 
 export default function NotFoundPage() {
   return (

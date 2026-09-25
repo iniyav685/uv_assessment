@@ -15,11 +15,11 @@ import {
   Typography,
 } from '@mui/material'
 import { useState } from 'react'
-import type { TicketDetail } from '../../../api/types'
-import UserAvatar from '../../../components/UserAvatar'
-import { useDebouncedValue } from '../../../hooks/useDebouncedValue'
-import { describeActionError } from '../actionErrors'
-import { useAssignableUsers, useLookups, useTicketAction } from '../api'
+import type { TicketDetail } from '@/api/types'
+import UserAvatar from '@/atoms/UserAvatar'
+import { useDebouncedValue } from '@/hooks/useDebouncedValue'
+import { describeActionError } from '@/features/tickets/actionErrors'
+import { useAssignableUsers, useLookups, useTicketAction } from '@/features/tickets/api'
 
 /**
  * Jira-style assignee field. For the Facility Manager (before forwarding) it's a

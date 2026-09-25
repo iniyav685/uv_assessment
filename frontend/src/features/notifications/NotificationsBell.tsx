@@ -13,11 +13,8 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
-import { api } from '../../api/client'
-import type { NotificationItem, Paginated } from '../../api/types'
-import { formatDateTime } from '../../utils/format'
-
-type NotificationPage = Paginated<NotificationItem> & { unread_count: number }
+import { notificationService } from '@/services/notification.service'
+import { formatDateTime } from '@/utils/format'
 
 const KEY = ['notifications'] as const
 
@@ -29,19 +26,18 @@ export default function NotificationsBell() {
 
   const { data } = useQuery({
     queryKey: KEY,
-    queryFn: () =>
-      api.get<NotificationPage>('/notifications/', { params: { page_size: 8 } }),
+    queryFn: () => notificationService.getNotifications(8),
     // Light polling so notifications produced asynchronously show up without a reload.
     refetchInterval: 30_000,
     refetchIntervalInBackground: false,
   })
 
   const markRead = useMutation({
-    mutationFn: (id: number) => api.post(`/notifications/${id}/read/`),
+    mutationFn: (id: number) => notificationService.markRead(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: KEY }),
   })
   const markAll = useMutation({
-    mutationFn: () => api.post('/notifications/read-all/'),
+    mutationFn: () => notificationService.markAllRead(),
     onSuccess: () => qc.invalidateQueries({ queryKey: KEY }),
   })
 

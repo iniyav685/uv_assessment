@@ -21,11 +21,11 @@ import {
   Typography,
 } from '@mui/material'
 import { useState, type FormEvent, type ReactNode } from 'react'
-import type { AssessmentOutcome, Lookups, TicketDetail } from '../../../api/types'
-import ConfirmDialog from '../../../components/ConfirmDialog'
-import { formatDateTime } from '../../../utils/format'
-import { describeActionError, NO_ERROR, type ActionErrorState } from '../actionErrors'
-import { useTicketAction, type ActionResponse } from '../api'
+import type { AssessmentOutcome, Lookups, TicketDetail } from '@/api/types'
+import ConfirmDialog from '@/molecules/ConfirmDialog'
+import { formatDateTime } from '@/utils/format'
+import { describeActionError, NO_ERROR, type ActionErrorState } from '@/features/tickets/actionErrors'
+import { useTicketAction, type ActionResponse } from '@/features/tickets/api'
 
 interface Props {
   ticket: TicketDetail

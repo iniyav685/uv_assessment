@@ -1,12 +1,12 @@
 import { Chip, Divider, Stack, Typography } from '@mui/material'
 import { useQuery } from '@tanstack/react-query'
-import { authApi } from './api'
+import { authService } from '@/services/auth.service'
 
 /** One-click demo logins, served only when the backend runs with DEMO_MODE. */
 export default function DemoAccounts({ onPick }: { onPick: (username: string, password: string) => void }) {
   const { data } = useQuery({
     queryKey: ['auth', 'demo-accounts'],
-    queryFn: authApi.demoAccounts,
+    queryFn: authService.getDemoAccounts,
     staleTime: Infinity,
     retry: false,
   })

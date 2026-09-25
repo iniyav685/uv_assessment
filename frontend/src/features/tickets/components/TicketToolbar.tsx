@@ -13,10 +13,10 @@ import {
   TextField,
 } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
-import type { Lookups } from '../../../api/types'
-import { useDebouncedValue } from '../../../hooks/useDebouncedValue'
-import type { Ordering } from '../useTicketListParams'
-import FiltersPopover, { type FilterValues } from './FiltersPopover'
+import type { Lookups } from '@/api/types'
+import { useDebouncedValue } from '@/hooks/useDebouncedValue'
+import type { Ordering } from '@/features/tickets/useTicketListParams'
+import FiltersPopover, { type FilterValues } from '@/features/tickets/components/FiltersPopover'
 
 const SORT_OPTIONS: { value: Ordering; label: string }[] = [
   { value: '-created_at', label: 'Newest first' },

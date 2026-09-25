@@ -1,7 +1,7 @@
 import InsertDriveFile from '@mui/icons-material/InsertDriveFileOutlined'
 import { Box, Chip, Stack } from '@mui/material'
-import type { AttachmentItem } from '../api/types'
-import { formatBytes } from '../utils/format'
+import type { AttachmentItem } from '@/api/types'
+import { formatBytes } from '@/utils/format'
 
 /** Images as thumbnails, videos inline, everything else as download chips. */
 export default function AttachmentList({ attachments }: { attachments: AttachmentItem[] }) {

@@ -1,10 +1,10 @@
 import { Box, Chip, Divider, Stack, Tooltip, Typography } from '@mui/material'
 import type { ReactNode } from 'react'
-import type { TicketDetail, UserSummary } from '../../../api/types'
-import UserAvatar from '../../../components/UserAvatar'
-import { formatDateTime } from '../../../utils/format'
-import AssigneePicker from './AssigneePicker'
-import StatusChip from './StatusChip'
+import type { TicketDetail, UserSummary } from '@/api/types'
+import UserAvatar from '@/atoms/UserAvatar'
+import { formatDateTime } from '@/utils/format'
+import AssigneePicker from '@/features/tickets/components/AssigneePicker'
+import StatusChip from '@/atoms/StatusChip'
 
 /** Jira-style right-hand details column of the ticket modal. */
 export default function TicketDetailsPanel({ ticket }: { ticket: TicketDetail }) {

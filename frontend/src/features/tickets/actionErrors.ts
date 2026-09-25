@@ -1,4 +1,4 @@
-import { toApiError } from '../../api/errors'
+import { toApiError } from '@/api/errors'
 
 export interface ActionErrorState {
   fields: Record<string, string>
