@@ -5,11 +5,14 @@ from unittest import mock
 import pytest
 from django.test import override_settings
 
+from apps.accounts.models import Role
 from apps.notifications.delivery import TransientDeliveryError
 from apps.notifications.models import Notification
-from apps.notifications.tasks import notify_activity
+from apps.notifications.tasks import notify_activity, recipients_for
+from apps.tickets import services
 from apps.tickets.models import ActivityKind, TicketActivity
 from apps.tickets.tests.helpers import act, create_ticket, raise_ac_ticket
+from conftest import make_user
 
 pytestmark = pytest.mark.django_db
 
@@ -52,6 +55,72 @@ def test_notifies_stakeholders_except_actor(assignment_activity, world):
     number = assignment_activity.ticket.number
     assert messages["tech.prakash"].endswith(f"assigned you to #{number} AC blowing warm air")
     assert "assigned Prakash" in messages["client.acme"]
+
+
+def test_reassignment_before_the_first_notification_runs_still_targets_the_original_technician(
+    world,
+):
+    """The notification queue gives no ordering/timing guarantee: if a technician is
+    reassigned again before the *first* assignment's notify task runs (a real race
+    once the queue has any backlog), recipients_for() must still resolve to the
+    technician that specific activity was about — not whoever currently holds the
+    ticket, which by then is someone else entirely."""
+    other_tech = make_user("tech.ravi", Role.TECHNICIAN, department=world.technical)
+
+    # Built directly via the service layer (not through HTTP) so this stays a pure
+    # service/notification test.
+    ticket = services.create_ticket(
+        user=world.client,
+        client_office=world.acme,
+        title="AC blowing warm air",
+        issue_types=[world.ac],
+        floors=world.floors,
+        description="",
+    )
+    services.forward_to_department(user=world.fm, ticket_id=ticket.id, department=world.technical)
+    services.assign_worker(user=world.tech_poc, ticket_id=ticket.id, technician=world.tech)
+    first_activity = TicketActivity.objects.get(
+        ticket_id=ticket.id, kind=ActivityKind.ASSIGNED_TECHNICIAN
+    )
+
+    # Superseded before the first activity's notification task ever runs.
+    services.assign_worker(user=world.tech_poc, ticket_id=ticket.id, technician=other_tech)
+
+    recipients = recipients_for(first_activity)
+    assert world.tech.id in recipients
+    assert other_tech.id not in recipients
+
+    result = notify_activity.apply(args=[first_activity.id]).get()
+    assert result["created"] == len(recipients)
+    message = Notification.objects.get(activity=first_activity, recipient=world.tech).message
+    assert "assigned you" in message
+
+
+def test_reroute_before_the_first_notification_runs_still_targets_the_original_poc(world):
+    """Same race, for department routing: change_department overwrites department_poc
+    before the *first* forward's notification runs. recipients_for() must resolve to
+    the POC that specific FORWARDED_TO_DEPARTMENT activity actually routed to."""
+    ticket = services.create_ticket(
+        user=world.client,
+        client_office=world.acme,
+        title="AC blowing warm air",
+        issue_types=[world.ac],
+        floors=world.floors,
+        description="",
+    )
+    services.forward_to_department(user=world.fm, ticket_id=ticket.id, department=world.technical)
+    forward_activity = TicketActivity.objects.get(
+        ticket_id=ticket.id, kind=ActivityKind.FORWARDED_TO_DEPARTMENT
+    )
+
+    # Rerouted to a different department before the forward's notification task runs.
+    services.change_department(
+        user=world.tech_poc, ticket_id=ticket.id, department=world.it, note="Wrong department"
+    )
+
+    recipients = recipients_for(forward_activity)
+    assert world.tech_poc.id in recipients
+    assert world.it_poc.id not in recipients
 
 
 def test_duplicate_execution_is_idempotent(assignment_activity):
