@@ -3,4 +3,4 @@ pytest>=8.3,<9
 pytest-django>=4.10,<5
 factory-boy>=3.3,<4
 ruff>=0.11
-moto[s3]>=5.1,<6
+moto[s3,ses]>=5.1,<6
