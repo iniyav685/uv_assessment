@@ -16,6 +16,7 @@ import {
 } from '@mui/material'
 import { useState } from 'react'
 import type { TicketDetail } from '@/api/types'
+import PersonLabel from '@/atoms/PersonLabel'
 import UserAvatar from '@/atoms/UserAvatar'
 import { useDebouncedValue } from '@/hooks/useDebouncedValue'
 import { describeActionError } from '@/features/tickets/actionErrors'
@@ -33,17 +34,6 @@ export default function AssigneePicker({ ticket }: { ticket: TicketDetail }) {
   return <TechnicianPicker ticket={ticket} />
 }
 
-function CurrentAssignee({ user }: { user: TicketDetail['technician'] | TicketDetail['facility_manager'] }) {
-  return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
-      <UserAvatar user={user} size="small" empty />
-      <Typography variant="body2" noWrap color={user ? 'text.primary' : 'text.secondary'}>
-        {user ? user.display_name : 'Unassigned'}
-      </Typography>
-    </Box>
-  )
-}
-
 function TechnicianPicker({ ticket }: { ticket: TicketDetail }) {
   const canAssign = ticket.available_actions.includes('assign_worker')
   const [anchor, setAnchor] = useState<HTMLElement | null>(null)
@@ -58,7 +48,7 @@ function TechnicianPicker({ ticket }: { ticket: TicketDetail }) {
     ticket.technician ??
     (ticket.status === 'pending_facility_manager_review' ? ticket.facility_manager : null)
 
-  if (!canAssign) return <CurrentAssignee user={current} />
+  if (!canAssign) return <PersonLabel user={current} fallback="Unassigned" />
 
   const close = () => {
     if (assign.isPending) return
@@ -76,7 +66,7 @@ function TechnicianPicker({ ticket }: { ticket: TicketDetail }) {
         aria-label={`Assignee: ${current ? current.display_name : 'Unassigned'}. Change assignee`}
         sx={{ justifyContent: 'flex-start', px: 1, mx: -1, textAlign: 'left', maxWidth: '100%' }}
       >
-        <CurrentAssignee user={current} />
+        <PersonLabel user={current} fallback="Unassigned" />
       </Button>
       <Popover
         open={Boolean(anchor)}
@@ -178,7 +168,7 @@ function DepartmentPicker({ ticket }: { ticket: TicketDetail }) {
         aria-label={`Assignee: ${current ? current.display_name : 'Unassigned'}. Forward to a department`}
         sx={{ justifyContent: 'flex-start', px: 1, mx: -1, textAlign: 'left', maxWidth: '100%' }}
       >
-        <CurrentAssignee user={current} />
+        <PersonLabel user={current} fallback="Unassigned" />
       </Button>
       <Popover
         open={Boolean(anchor)}

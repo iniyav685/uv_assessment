@@ -6,23 +6,24 @@ import {
   Alert,
   Box,
   Button,
-  CircularProgress,
   Collapse,
   FormControl,
   FormControlLabel,
   FormHelperText,
   FormLabel,
   MenuItem,
-  Paper,
   Radio,
   RadioGroup,
   Stack,
   TextField,
   Typography,
 } from '@mui/material'
-import { useState, type FormEvent, type ReactNode } from 'react'
+import { useState, type FormEvent } from 'react'
 import type { AssessmentOutcome, Lookups, TicketDetail } from '@/api/types'
+import SubmitButton from '@/atoms/SubmitButton'
 import ConfirmDialog from '@/molecules/ConfirmDialog'
+import ErrorBanner from '@/molecules/ErrorBanner'
+import PanelShell from '@/molecules/PanelShell'
 import { formatDateTime } from '@/utils/format'
 import { describeActionError, NO_ERROR, type ActionErrorState } from '@/features/tickets/actionErrors'
 import { useTicketAction, type ActionResponse } from '@/features/tickets/api'
@@ -142,7 +143,7 @@ function ForwardToDepartmentForm({
 
   return (
     <Box component="form" id="forward-to-department-form" noValidate onSubmit={submit} sx={{ mt: 2 }}>
-      <ErrorBanner error={error} />
+      <ErrorBanner message={error.message} />
       <Stack spacing={1.5} sx={{ textAlign: 'left' }}>
         <TextField
           select
@@ -180,29 +181,6 @@ function ForwardToDepartmentForm({
   )
 }
 
-function PanelShell({ message, children }: { message: string; children: ReactNode }) {
-  return (
-    <Paper
-      variant="outlined"
-      component="section"
-      aria-label="Actions"
-      sx={{ p: 2, bgcolor: 'action.hover', textAlign: 'center' }}
-    >
-      <Typography sx={{ fontWeight: 600, mb: 1.5 }}>{message}</Typography>
-      {children}
-    </Paper>
-  )
-}
-
-function ErrorBanner({ error }: { error: ActionErrorState }) {
-  if (!error.message) return null
-  return (
-    <Alert severity="error" role="alert" sx={{ mb: 1.5, textAlign: 'left' }}>
-      {error.message}
-    </Alert>
-  )
-}
-
 // --- Client / creator -------------------------------------------------------
 
 function ResolveAction({ ticket, justCreated }: { ticket: TicketDetail; justCreated: boolean }) {
@@ -218,7 +196,7 @@ function ResolveAction({ ticket, justCreated }: { ticket: TicketDetail; justCrea
 
   return (
     <PanelShell message={message}>
-      <ErrorBanner error={error} />
+      <ErrorBanner message={error.message} />
       <Button
         variant="outlined"
         color="success"
@@ -354,7 +332,7 @@ function AssignWorkerForm({
 
   return (
     <Box component="form" id="assign-worker-form" noValidate onSubmit={submit} sx={{ mt: 2 }}>
-      <ErrorBanner error={error} />
+      <ErrorBanner message={error.message} />
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} sx={{ alignItems: 'flex-start' }}>
         <TextField
           select
@@ -430,7 +408,7 @@ function ChangeDepartmentForm({
 
   return (
     <Box component="form" id="change-department-form" noValidate onSubmit={submit} sx={{ mt: 2 }}>
-      <ErrorBanner error={error} />
+      <ErrorBanner message={error.message} />
       <Stack spacing={1.5} sx={{ textAlign: 'left' }}>
         <TextField
           select
@@ -493,7 +471,7 @@ function CloseDialog({ ticket, onClose }: { ticket: TicketDetail; onClose: () =>
         )
       }
     >
-      <ErrorBanner error={error} />
+      <ErrorBanner message={error.message} />
       <TextField
         label="Closing note (optional)"
         fullWidth
@@ -586,7 +564,7 @@ function TechnicianActions({
           onSubmit={submit}
           sx={{ mt: 2, textAlign: 'left' }}
         >
-          <ErrorBanner error={error} />
+          <ErrorBanner message={error.message} />
           <FormControl error={Boolean(error.fields.outcome)} required fullWidth>
             <FormLabel id="outcome-label">Assessment outcome</FormLabel>
             <RadioGroup
@@ -638,20 +616,5 @@ function TechnicianActions({
         </Box>
       </Collapse>
     </PanelShell>
-  )
-}
-
-function SubmitButton({ pending, label }: { pending: boolean; label: string }) {
-  return (
-    <Button
-      type="submit"
-      variant="contained"
-      color="success"
-      disabled={pending}
-      startIcon={pending ? <CircularProgress size={16} color="inherit" /> : undefined}
-      sx={{ minWidth: 88, flexShrink: 0 }}
-    >
-      {pending ? 'Saving…' : label}
-    </Button>
   )
 }
